@@ -135,6 +135,24 @@ abstract class MobileScannerPlatform extends PlatformInterface {
     throw UnimplementedError('getSupportedLenses() has not been implemented.');
   }
 
+  /// Determine the best lens type for QR code scanning.
+  ///
+  /// Returns the [CameraLensType] whose camera can focus closest to the phone,
+  /// making it best suited for scanning QR codes held at close range.
+  ///
+  /// Uses minimum focus distance data from the platform:
+  /// - Android: [CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE] (diopters)
+  /// - iOS 15+: [AVCaptureDevice.minimumFocusDistance] (millimeters)
+  ///
+  /// Falls back to [CameraLensType.normal] when platform data is unavailable.
+  Future<CameraLensType> getBestQrScanningLens({
+    CameraFacing facing = CameraFacing.back,
+  }) {
+    throw UnimplementedError(
+      'getBestQrScanningLens() has not been implemented.',
+    );
+  }
+
   /// Update the scan window to the given [window] rectangle.
   ///
   /// Any barcodes that do not intersect with the given [window] will be

@@ -154,6 +154,7 @@ class MobileScannerHandler(
             "stop" -> stop(call, result)
             "toggleTorch" -> toggleTorch(result)
             "getSupportedLenses" -> getSupportedLenses(call, result)
+            "getBestQrScanningLens" -> getBestQrScanningLens(call, result)
             "analyzeImage" -> analyzeImage(call, result)
             "setScale" -> setScale(call, result)
             "resetScale" -> resetScale(result)
@@ -307,6 +308,20 @@ class MobileScannerHandler(
         try {
             val supportedLenses = MobileScannerCameraLensSelector.getSupportedLenses(cameraManager, facing)
             result.success(supportedLenses.toList())
+        } catch (e: Exception) {
+            result.error(
+                MobileScannerErrorCodes.GENERIC_ERROR,
+                e.localizedMessage ?: MobileScannerErrorCodes.GENERIC_ERROR_MESSAGE,
+                null
+            )
+        }
+    }
+
+    private fun getBestQrScanningLens(call: MethodCall, result: MethodChannel.Result) {
+        val facing: Int = call.argument<Int>("facing") ?: 1
+        try {
+            val lensType = MobileScannerCameraLensSelector.getBestQrScanningLens(cameraManager, facing)
+            result.success(lensType)
         } catch (e: Exception) {
             result.error(
                 MobileScannerErrorCodes.GENERIC_ERROR,
