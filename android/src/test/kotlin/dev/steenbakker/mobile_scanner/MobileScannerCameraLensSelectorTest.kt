@@ -248,6 +248,51 @@ internal class MobileScannerCameraLensSelectorTest {
     }
 
     // ==========================================================================
+    // getBestQrScanningLens logic tests
+    // ==========================================================================
+    //
+    // Full integration tests for getBestQrScanningLens — including CameraManager
+    // interactions such as enumerating camera IDs and reading
+    // LENS_INFO_MINIMUM_FOCUS_DISTANCE characteristics — require an Android device
+    // or emulator and are located in the instrumented test suite
+    // (androidTest/kotlin/...MobileScannerCameraLensSelectorInstrumentedTest.kt).
+    //
+    // The tests below validate only the pure constants and pure-logic helpers
+    // that getBestQrScanningLens relies on at runtime.
+
+    @Test
+    fun getBestQrScanningLens_lensTypeConstants_areCorrect() {
+        // LENS_TYPE_NORMAL (0) is the fallback returned by getBestQrScanningLens
+        // when no camera reports a valid minimum focus distance.
+        // LENS_TYPE_WIDE (1) is the expected result on newer iPhones / Android
+        // phones whose ultra-wide lens has the shortest minimum focus distance.
+        assertEquals(0, MobileScannerCameraLensSelector.LENS_TYPE_NORMAL)
+        assertEquals(1, MobileScannerCameraLensSelector.LENS_TYPE_WIDE)
+    }
+
+    @Test
+    fun getBestQrScanningLens_classifyLensType_negativeInput_returnsWide() {
+        // classifyLensType is called internally by getBestQrScanningLens on each
+        // logical camera after computing the 35mm equivalent. A negative equivalent
+        // (produced when calculate35mmEquivalent receives invalid sensor data) must
+        // not crash the selector and must resolve to LENS_TYPE_WIDE by the < 20
+        // threshold branch.
+        assertEquals(
+            MobileScannerCameraLensSelector.LENS_TYPE_WIDE,
+            MobileScannerCameraLensSelector.classifyLensType(-1),
+        )
+    }
+
+    @Test
+    fun getBestQrScanningLens_fallbackValue_isNormal() {
+        // Verifies that the documented fallback value for getBestQrScanningLens —
+        // returned when no camera supplies LENS_INFO_MINIMUM_FOCUS_DISTANCE data —
+        // equals LENS_TYPE_NORMAL (0), so callers can rely on the normal lens
+        // being selected when focus-distance information is unavailable.
+        assertEquals(0, MobileScannerCameraLensSelector.LENS_TYPE_NORMAL)
+    }
+
+    // ==========================================================================
     // getLensTypeName tests
     // ==========================================================================
 

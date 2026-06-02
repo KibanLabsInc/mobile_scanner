@@ -35,6 +35,41 @@ See the example app for detailed implementation information.
 | scanWindow   | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x: |
 | autoZoom     | :heavy_check_mark: | :x:                | :x:                | :x: |
 | lensType     | :heavy_check_mark: | :heavy_check_mark: | :x:                | :x: |
+| getSupportedLenses(facing:) | :heavy_check_mark: | :heavy_check_mark: | :x: | :x: |
+| getBestQrScanningLens | :heavy_check_mark: | :heavy_check_mark: (requires iOS 15, falls back to wideAngle) | :x: | :x: |
+
+## Camera Lens Selection
+
+### Querying supported lenses
+
+Use `getSupportedLenses()` to discover which lens types are available:
+
+```dart
+// All cameras
+final lenses = await controller.getSupportedLenses();
+
+// Only back-camera lenses (avoids front-camera lenses polluting the result)
+final backLenses = await controller.getSupportedLenses(facing: CameraFacing.back);
+```
+
+The `facing` parameter is optional and backwards-compatible. Without it, all cameras are included.
+
+### Automatic best-lens selection for QR scanning
+
+Use `getBestQrScanningLens()` to automatically select the lens with the shortest minimum focus distance, which gives the best QR code scanning experience regardless of device:
+
+```dart
+final bestLens = await controller.getBestQrScanningLens(facing: CameraFacing.back);
+
+await controller.switchCamera(
+  SelectCamera(facingDirection: CameraFacing.back, lensType: bestLens),
+);
+```
+
+This returns:
+- The ultra-wide lens on newer iPhones (iOS 15+) which supports macro autofocus at ~2cm
+- The normal (main) lens on most Android phones where it has the best close-focus capability
+- Falls back to `CameraLensType.normal` when minimum focus distance data is unavailable (older iOS, web)
 
 ## Installation
 
