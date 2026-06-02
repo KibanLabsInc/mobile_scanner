@@ -250,54 +250,25 @@ object MobileScannerCameraLensSelector {
     }
 
     /**
-     * Determine the best lens type for QR code scanning based on minimum focus distance.
+     * Determine the best lens type for QR code scanning.
      *
-     * Selects the logical back (or front) camera that can focus closest to the phone,
-     * which gives the best QR code scanning experience. Fixed-focus cameras (MFD = 0)
-     * are skipped since they cannot autofocus at close range.
+     * On Android, [LENS_INFO_MINIMUM_FOCUS_DISTANCE] is not reliably populated for
+     * logical cameras on modern multi-camera devices — it is only present on physical
+     * sub-cameras, which are not independently selectable via CameraX. Because of this,
+     * the normal (main) camera is always returned: it has the most capable autofocus
+     * system and handles close-range QR scanning well on virtually all Android devices.
+     * Wide-angle cameras frequently have fixed focus or slower autofocus.
      *
-     * Falls back to [LENS_TYPE_NORMAL] if no minimum focus distance data is available.
+     * For platforms where minimum focus distance data is available per selectable camera
+     * (e.g. iOS via AVCaptureDevice.minimumFocusDistance), the platform implementation
+     * performs a genuine comparison and may return a different lens type.
      *
-     * @param cameraManager The CameraManager instance
-     * @param facing 0 = front, 1 = back (default)
-     * @return The lens type constant for the best QR scanning lens
+     * @param cameraManager The CameraManager instance (unused, kept for API symmetry)
+     * @param facing 0 = front, 1 = back (default); currently unused, normal is returned for both
+     * @return [LENS_TYPE_NORMAL]
      */
-    fun getBestQrScanningLens(cameraManager: CameraManager, facing: Int = 1): Int {
-        val lensFacing = if (facing == 0) {
-            CameraCharacteristics.LENS_FACING_FRONT
-        } else {
-            CameraCharacteristics.LENS_FACING_BACK
-        }
-
-        var bestLensType = LENS_TYPE_NORMAL
-        var bestDiopters = -1f
-
-        try {
-            for (cameraId in cameraManager.cameraIdList) {
-                val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-
-                val cameraFacing = characteristics.get(CameraCharacteristics.LENS_FACING)
-                if (cameraFacing != lensFacing) continue
-
-                val lensType = getLensTypeFromCharacteristics(characteristics) ?: continue
-
-                // LENS_INFO_MINIMUM_FOCUS_DISTANCE is in diopters (1/meters).
-                // Higher value = shorter minimum focus distance = better for close-up QR scanning.
-                // 0.0 means fixed focus at infinity — skip these.
-                val mfd = characteristics.get(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE)
-                    ?: continue
-                if (mfd <= 0f) continue
-
-                if (mfd > bestDiopters) {
-                    bestDiopters = mfd
-                    bestLensType = lensType
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to determine best QR scanning lens", e)
-        }
-
-        return bestLensType
+    fun getBestQrScanningLens(@Suppress("UNUSED_PARAMETER") cameraManager: CameraManager, facing: Int = 1): Int {
+        return LENS_TYPE_NORMAL
     }
 
     /**

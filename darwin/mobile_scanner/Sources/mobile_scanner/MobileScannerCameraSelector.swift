@@ -112,7 +112,14 @@ class MobileScannerCameraSelector {
     /// `minimumFocusDistance` (millimeters, lower = shorter focus distance) is used.
     /// Fixed-focus cameras (minimumFocusDistance == -1) are skipped.
     ///
-    /// Falls back to wideAngle on iOS < 15 or macOS.
+    /// **Naming note:** `LensType.wideAngle` (raw value 0) maps to the standard 1× camera
+    /// (`builtInWideAngleCamera` in AVFoundation), which corresponds to `CameraLensType.normal`
+    /// in the Dart API. `LensType.ultraWide` (raw value 1) is the 0.5× camera, which maps to
+    /// `CameraLensType.wide` in Dart. These names reflect AVFoundation's conventions, not the
+    /// Dart layer's conventions — the raw values are what matter for the method channel.
+    ///
+    /// Falls back to `LensType.wideAngle` (raw value 0 = Dart `normal`) on iOS < 15 or macOS,
+    /// which is the standard main camera and a safe default for QR scanning.
     ///
     /// - Parameter position: The camera position to check (default: .back)
     /// - Returns: The LensType raw value best suited for close-up QR scanning
@@ -126,6 +133,7 @@ class MobileScannerCameraSelector {
                     position: position
                 ).devices
 
+                // LensType.wideAngle = raw 0 = Dart normal (safe default)
                 var bestLensType = LensType.wideAngle.rawValue
                 var bestMfd = Int.max
                 var foundAny = false
@@ -144,6 +152,7 @@ class MobileScannerCameraSelector {
             }
         }
 #endif
+        // Fallback: raw value 0 = LensType.wideAngle = Dart CameraLensType.normal (the 1× camera)
         return LensType.wideAngle.rawValue
     }
 

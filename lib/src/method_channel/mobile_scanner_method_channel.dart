@@ -505,7 +505,6 @@ class MethodChannelMobileScanner extends MobileScannerPlatform {
   }
 
   @override
-  @override
   Future<Set<CameraLensType>> getSupportedLenses({
     CameraFacing? facing,
   }) async {

@@ -36,7 +36,7 @@ See the example app for detailed implementation information.
 | autoZoom     | :heavy_check_mark: | :x:                | :x:                | :x: |
 | lensType     | :heavy_check_mark: | :heavy_check_mark: | :x:                | :x: |
 | getSupportedLenses(facing:) | :heavy_check_mark: | :heavy_check_mark: | :x: | :x: |
-| getBestQrScanningLens | :heavy_check_mark: | :heavy_check_mark: (requires iOS 15, falls back to wideAngle) | :x: | :x: |
+| getBestQrScanningLens | :heavy_check_mark: (always normal) | :heavy_check_mark: (requires iOS 15, falls back to normal) | :x: | :x: |
 
 ## Camera Lens Selection
 
@@ -67,9 +67,9 @@ await controller.switchCamera(
 ```
 
 This returns:
-- The ultra-wide lens on newer iPhones (iOS 15+) which supports macro autofocus at ~2cm
-- The normal (main) lens on most Android phones where it has the best close-focus capability
-- Falls back to `CameraLensType.normal` when minimum focus distance data is unavailable (older iOS, web)
+- **iOS 15+**: The camera with the shortest `AVCaptureDevice.minimumFocusDistance` — typically the ultra-wide lens on newer iPhones (macro autofocus at ~2cm) or the standard 1× camera on older models
+- **iOS < 15 / macOS / Web**: `CameraLensType.normal` (the standard 1× camera)
+- **Android**: Always `CameraLensType.normal`. `LENS_INFO_MINIMUM_FOCUS_DISTANCE` is not reliably populated for logical cameras on multi-camera Android devices (the data lives on non-selectable physical sub-cameras), so the normal camera is returned unconditionally — it has the most capable autofocus system for close-range QR scanning on virtually all Android devices
 
 ## Installation
 

@@ -358,6 +358,8 @@ class MobileScannerWeb extends MobileScannerPlatform {
   Future<CameraLensType> getBestQrScanningLens({
     CameraFacing facing = CameraFacing.back,
   }) async {
+    // The web MediaDevices API has no concept of lens type or minimum focus
+    // distance, so the facing parameter is intentionally unused.
     return CameraLensType.normal;
   }
 
