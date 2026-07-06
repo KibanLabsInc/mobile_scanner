@@ -75,7 +75,7 @@ class FakeMobileScannerPlatform extends MobileScannerPlatform {
   }
 
   @override
-  Future<Set<CameraLensType>> getSupportedLenses() {
+  Future<Set<CameraLensType>> getSupportedLenses({CameraFacing? facing}) {
     return Future.value(<CameraLensType>{});
   }
 
@@ -101,7 +101,7 @@ class FakeMobileScannerPlatformWithFacingCapture extends MobileScannerPlatform {
   }
 
   @override
-  Future<Set<CameraLensType>> getSupportedLenses() {
+  Future<Set<CameraLensType>> getSupportedLenses({CameraFacing? facing}) {
     return Future.value(<CameraLensType>{});
   }
 

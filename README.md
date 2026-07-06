@@ -36,6 +36,7 @@ See the example app for detailed implementation information.
 | autoZoom     | :heavy_check_mark: | :x:                | :x:                | :x: |
 | lensType     | :heavy_check_mark: | :heavy_check_mark: | :x:                | :x: |
 | getBestQrScanningLens | :heavy_check_mark: (always normal) | :heavy_check_mark: (requires iOS 15, falls back to normal) | :x: | :x: |
+| getSupportedLenses(facing:) | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 
 ### Automatic best-lens selection for QR scanning
 
@@ -53,6 +54,26 @@ This returns:
 - **iOS 15+**: The camera with the shortest `AVCaptureDevice.minimumFocusDistance` — typically the ultra-wide lens on newer iPhones (macro autofocus at ~2cm) or the standard 1× camera on older models
 - **iOS < 15 / macOS / Web**: `CameraLensType.normal` (the standard 1× camera)
 - **Android**: Always `CameraLensType.normal`. `LENS_INFO_MINIMUM_FOCUS_DISTANCE` is not reliably populated for logical cameras on multi-camera Android devices (the data lives on non-selectable physical sub-cameras), so the normal camera is returned unconditionally — it has the most capable autofocus system for close-range QR scanning on virtually all Android devices
+
+### Querying supported lens types with facing filter
+
+Use `getSupportedLenses()` to query which lens types the device has. Pass an optional `facing` parameter to restrict results to cameras on one side:
+
+```dart
+// All cameras (back + front)
+final Set<CameraLensType> allLenses = await controller.getSupportedLenses();
+
+// Back cameras only
+final Set<CameraLensType> backLenses = await controller.getSupportedLenses(
+  facing: CameraFacing.back,
+);
+
+if (backLenses.contains(CameraLensType.zoom)) {
+  // Device has a telephoto back camera
+}
+```
+
+Without a facing filter, results may include lenses from both the front and back cameras, which can cause incorrect lens-type detection when switching cameras.
 
 ## Installation
 

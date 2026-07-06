@@ -147,7 +147,9 @@ abstract class MobileScannerPlatform extends PlatformInterface {
   /// containing only [CameraLensType.any] if cameras are available.
   ///
   /// This method can be called before starting the scanner.
-  Future<Set<CameraLensType>> getSupportedLenses() {
+  Future<Set<CameraLensType>> getSupportedLenses({
+    CameraFacing? facing,
+  }) {
     throw UnimplementedError('getSupportedLenses() has not been implemented.');
   }
 
