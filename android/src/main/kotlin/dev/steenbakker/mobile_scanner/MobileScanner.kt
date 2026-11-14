@@ -401,7 +401,13 @@ class MobileScanner(
         val mainExecutor = ContextCompat.getMainExecutor(activity)
 
         cameraProviderFuture.addListener({
-            cameraProvider = cameraProviderFuture.get()
+            // CameraX initialization can fail (CameraUnavailableException);
+            // get() rethrows that on the main thread, which kills the app.
+            cameraProvider = try {
+                cameraProviderFuture.get()
+            } catch (_: Exception) {
+                null
+            }
             val numberOfCameras = cameraProvider?.availableCameraInfos?.size
 
             if (cameraProvider == null) {
